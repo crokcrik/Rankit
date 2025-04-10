@@ -1,11 +1,11 @@
 import { NextResponse } from 'next/server';
-import { rankings } from '@/lib/db';
+import { rankings, type Ranking } from '@/lib/db';
 
 export async function GET(
   request: Request,
   { params }: { params: { id: string } }
 ) {
-  const ranking = rankings.find(r => r.id === params.id);
+  const ranking = rankings.find((r: Ranking) => r.id === params.id);
   
   if (!ranking) {
     return NextResponse.json(
@@ -56,7 +56,7 @@ export async function DELETE(
   request: Request,
   { params }: { params: { id: string } }
 ) {
-  const index = rankings.findIndex(r => r.id === params.id);
+  const index = rankings.findIndex((r: Ranking) => r.id === params.id);
   
   if (index === -1) {
     return NextResponse.json(
