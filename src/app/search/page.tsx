@@ -1,9 +1,8 @@
 "use client";
 
-import { useState } from 'react';
-import { Search as SearchIcon, Plus } from 'lucide-react';
+import { useState, useRef, useEffect } from 'react';
+import { Search as SearchIcon, Plus, X } from 'lucide-react';
 import { useDebounce } from '@/hooks/useDebounce';
-import { useEffect } from 'react';
 import AddToRankingModal from '../components/AddToRankingModal';
 import Toast from '../components/Toast';
 
@@ -22,6 +21,14 @@ export default function SearchPage() {
   const [selectedAlbum, setSelectedAlbum] = useState<SpotifyAlbum | null>(null);
   const [toast, setToast] = useState<{ message: string } | null>(null);
   const debouncedSearch = useDebounce(searchQuery, 500);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  // Focus search input on load
+  useEffect(() => {
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, []);
 
   useEffect(() => {
     const searchAlbums = async () => {
@@ -37,6 +44,7 @@ export default function SearchPage() {
         setAlbums(data);
       } catch (error) {
         console.error('Error searching albums:', error);
+        setToast({ message: 'Error searching albums. Please try again.' });
       } finally {
         setIsLoading(false);
       }
@@ -50,6 +58,13 @@ export default function SearchPage() {
     setSelectedAlbum(null);
   };
 
+  const clearSearch = () => {
+    setSearchQuery('');
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
+  };
+
   return (
     <div className="p-4 md:p-6">
       {/* Search Bar */}
@@ -58,12 +73,22 @@ export default function SearchPage() {
         <div className="relative w-full max-w-2xl">
           <SearchIcon className="absolute left-4 top-1/2 transform -translate-y-1/2 text-text-secondary w-5 h-5" />
           <input
+            ref={inputRef}
             type="text"
             placeholder="Search for albums or artists..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="input-field pl-12 w-full"
+            className="input-field pl-12 pr-10 w-full"
           />
+          {searchQuery && (
+            <button 
+              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-text-secondary hover:text-text-primary transition-colors p-1 rounded-full"
+              onClick={clearSearch}
+              aria-label="Clear search"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          )}
         </div>
       </div>
 
@@ -86,7 +111,7 @@ export default function SearchPage() {
                 <button 
                   className="btn-primary absolute bottom-2 right-2 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity p-2 md:p-2"
                   onClick={() => setSelectedAlbum(album)}
-                  aria-label="Add to ranking"
+                  aria-label={`Add ${album.name} to ranking`}
                 >
                   <Plus className="w-4 h-4 md:w-5 md:h-5" />
                 </button>
@@ -100,7 +125,12 @@ export default function SearchPage() {
           <div className="col-span-full text-center py-12 text-text-secondary">
             No albums found for "{searchQuery}"
           </div>
-        ) : null}
+        ) : (
+          <div className="col-span-full text-center py-12 text-text-secondary">
+            <p>Search for your favorite albums or artists</p>
+            <p className="text-sm mt-2">Try searching for "The Beatles" or "Dark Side of the Moon"</p>
+          </div>
+        )}
       </div>
 
       <AddToRankingModal

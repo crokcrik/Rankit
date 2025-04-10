@@ -19,10 +19,16 @@
 @layer base {
   body {
     @apply bg-background-primary text-text-primary font-inter;
+    -webkit-tap-highlight-color: transparent; /* Removes tap highlight on mobile */
   }
 
   input {
     @apply bg-background-elevated text-text-primary border-border;
+  }
+  
+  /* Improve scrolling on mobile */
+  * {
+    -webkit-overflow-scrolling: touch;
   }
 }
 
@@ -36,7 +42,7 @@
   }
 
   .album-card {
-    @apply bg-surface p-4 rounded-lg hover:bg-background-elevated transition-all duration-200;
+    @apply bg-surface p-3 md:p-4 rounded-lg hover:bg-background-elevated transition-all duration-200;
   }
 
   .input-field {
@@ -52,8 +58,24 @@
   .sidebar-item.active {
     @apply bg-background-elevated text-text-primary;
   }
+
+  /* Mobile specific styles */
+  @media (max-width: 640px) {
+    .btn-primary, .btn-secondary {
+      @apply py-1.5 px-3 text-sm;
+    }
+    
+    .sidebar-item {
+      @apply px-3 py-2;
+    }
+    
+    .input-field {
+      @apply py-2;
+    }
+  }
 }
 
+/* Toast animation */
 @keyframes slide-up {
   from {
     transform: translateY(100%);
@@ -67,4 +89,14 @@
 
 .animate-slide-up {
   animation: slide-up 0.3s ease-out forwards;
+}
+
+/* Safe area insets for notched phones */
+@supports (padding: max(0px)) {
+  body {
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+    padding-bottom: env(safe-area-inset-bottom);
+    padding-top: env(safe-area-inset-top);
+  }
 }
