@@ -1,23 +1,5 @@
 import { NextResponse } from 'next/server';
-
-interface Album {
-  id: string;
-  name: string;
-  artist: string;
-  imageUrl: string;
-  rank: number;
-}
-
-interface Ranking {
-  id: string;
-  name: string;
-  createdAt: string;
-  albums: Album[];
-}
-
-// For now, we'll store rankings in memory
-// In a real app, this would be in a database
-const rankings: Ranking[] = [];
+import { rankings, type Ranking, type Album } from '@/lib/db';
 
 export async function GET() {
   return NextResponse.json(rankings);
