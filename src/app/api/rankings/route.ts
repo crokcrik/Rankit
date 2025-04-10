@@ -17,7 +17,7 @@ interface Ranking {
 
 // For now, we'll store rankings in memory
 // In a real app, this would be in a database
-export const rankings: Ranking[] = [];
+const rankings: Ranking[] = [];
 
 export async function GET() {
   return NextResponse.json(rankings);
