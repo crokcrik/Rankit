@@ -1,0 +1,70 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background-primary: #121212;
+  --background-secondary: #181818;
+  --background-elevated: #282828;
+  --text-primary: #FFFFFF;
+  --text-secondary: #B3B3B3;
+  --accent: #1DB954;
+  --accent-hover: #1ed760;
+  --surface: #1E1E1E;
+  --border: rgba(255, 255, 255, 0.1);
+}
+
+@layer base {
+  body {
+    @apply bg-background-primary text-text-primary font-inter;
+  }
+
+  input {
+    @apply bg-background-elevated text-text-primary border-border;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-accent hover:bg-accent-hover text-black font-semibold py-2 px-4 rounded-full transition-all;
+  }
+
+  .btn-secondary {
+    @apply bg-white/10 hover:bg-white/20 text-white font-semibold py-2 px-4 rounded-full transition-all;
+  }
+
+  .album-card {
+    @apply bg-surface p-4 rounded-lg hover:bg-background-elevated transition-all duration-200;
+  }
+
+  .input-field {
+    @apply w-full bg-background-elevated text-text-primary border border-border rounded-lg px-4 py-3 
+    focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent
+    placeholder:text-text-secondary;
+  }
+
+  .sidebar-item {
+    @apply flex items-center gap-3 px-4 py-3 text-text-secondary hover:text-text-primary transition-colors rounded-lg hover:bg-background-elevated;
+  }
+
+  .sidebar-item.active {
+    @apply bg-background-elevated text-text-primary;
+  }
+}
+
+@keyframes slide-up {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.animate-slide-up {
+  animation: slide-up 0.3s ease-out forwards;
+}
