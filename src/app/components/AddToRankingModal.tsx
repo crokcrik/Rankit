@@ -4,12 +4,7 @@ import { X, Plus } from 'lucide-react';
 interface Ranking {
   id: string;
   name: string;
-  albums: Array<{
-    id: string;
-    name: string;
-    artist: string;
-    imageUrl: string;
-  }>;
+  albums: Album[];
 }
 
 interface Album {
@@ -32,23 +27,23 @@ export default function AddToRankingModal({ isOpen, onClose, album, onSuccess }:
   const [rankings, setRankings] = useState<Ranking[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
-  useEffect(() => {
-    if (isOpen) {
-      fetchRankings();
-    }
-  }, [isOpen]);
-
   const fetchRankings = async () => {
     try {
       const response = await fetch('/api/rankings');
-      const data = await response.json();
-      setRankings(data);
+      if (response.ok) {
+        const data = await response.json();
+        setRankings(data);
+      }
     } catch (error) {
       console.error('Error fetching rankings:', error);
     }
   };
 
-  if (!isOpen || !album) return null;
+  useEffect(() => {
+    if (isOpen) {
+      fetchRankings();
+    }
+  }, [isOpen]);
 
   const handleCreateNewRanking = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -122,92 +117,96 @@ export default function AddToRankingModal({ isOpen, onClose, album, onSuccess }:
   return (
     <>
       {isOpen && album && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-background-elevated rounded-lg p-6 max-w-md w-full mx-4">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-xl font-semibold text-text-primary">Add to Ranking</h2>
-              <button
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-background-secondary rounded-lg w-full max-w-md max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between p-4 border-b border-border">
+              <h2 className="text-lg font-semibold text-text-primary">Add to Ranking</h2>
+              <button 
                 onClick={onClose}
-                className="text-text-secondary hover:text-text-primary"
+                className="text-text-secondary hover:text-text-primary transition-colors"
+                aria-label="Close"
               >
-                <X className="w-6 h-6" />
+                <X className="w-5 h-5" />
               </button>
             </div>
-
-            <div className="mb-6">
-              <div className="flex items-center gap-4 p-4 bg-surface rounded-lg">
-                <img
-                  src={album.images[0]?.url}
-                  alt={album.name}
+            
+            <div className="p-4">
+              <div className="flex items-center gap-3 mb-6">
+                <img 
+                  src={album.images[0]?.url || '/placeholder-album.png'} 
+                  alt={album.name} 
                   className="w-16 h-16 object-cover rounded"
                 />
                 <div>
-                  <h3 className="font-semibold text-text-primary">{album.name}</h3>
-                  <p className="text-text-secondary">{album.artists[0]?.name}</p>
+                  <h3 className="font-semibold text-text-primary truncate">{album.name}</h3>
+                  <p className="text-text-secondary text-sm">{album.artists[0]?.name}</p>
                 </div>
               </div>
-            </div>
 
-            {isLoading ? (
-              <div className="flex justify-center py-8">
-                <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-accent"></div>
-              </div>
-            ) : !showNewRankingForm ? (
-              <>
-                <div className="space-y-2 mb-4">
-                  {rankings.map((ranking) => (
+              {showNewRankingForm ? (
+                <form onSubmit={handleCreateNewRanking} className="mb-4">
+                  <label className="block text-sm text-text-secondary mb-2">
+                    Ranking Name
+                  </label>
+                  <input 
+                    type="text"
+                    value={newRankingName}
+                    onChange={(e) => setNewRankingName(e.target.value)}
+                    placeholder="Enter a name for your new ranking"
+                    className="input-field mb-4 w-full"
+                    required
+                  />
+                  <div className="flex gap-2">
                     <button
-                      key={ranking.id}
-                      onClick={() => handleAddToExisting(ranking.id, ranking.name)}
-                      className="w-full text-left p-4 bg-surface hover:bg-background-elevated rounded-lg transition-colors"
+                      type="button" 
+                      onClick={() => setShowNewRankingForm(false)}
+                      className="btn-secondary flex-1"
+                      disabled={isLoading}
                     >
-                      <h3 className="font-semibold text-text-primary">{ranking.name}</h3>
-                      <p className="text-text-secondary text-sm">{ranking.albums.length} albums</p>
+                      Cancel
                     </button>
-                  ))}
-                  {rankings.length === 0 && (
-                    <p className="text-text-secondary text-center py-4">
-                      No rankings yet. Create your first one!
-                    </p>
+                    <button 
+                      type="submit"
+                      className="btn-primary flex-1"
+                      disabled={isLoading}
+                    >
+                      {isLoading ? 'Creating...' : 'Create'}
+                    </button>
+                  </div>
+                </form>
+              ) : (
+                <>
+                  <button 
+                    onClick={() => setShowNewRankingForm(true)}
+                    className="btn-primary w-full mb-6 flex items-center justify-center gap-2"
+                  >
+                    <Plus className="w-5 h-5" />
+                    Create New Ranking
+                  </button>
+
+                  {rankings.length > 0 ? (
+                    <>
+                      <h4 className="text-sm text-text-secondary mb-2">Or add to existing ranking:</h4>
+                      <div className="space-y-2 max-h-60 overflow-y-auto">
+                        {rankings.map(ranking => (
+                          <button
+                            key={ranking.id}
+                            onClick={() => handleAddToExisting(ranking.id, ranking.name)}
+                            disabled={isLoading}
+                            className="w-full text-left p-3 rounded-lg bg-background-elevated hover:bg-surface transition-colors flex items-center justify-between"
+                          >
+                            <span className="truncate">{ranking.name}</span>
+                            <span className="text-xs text-text-secondary">{ranking.albums.length} albums</span>
+                          </button>
+                        ))}
+                      </div>
+                    </>
+                  ) : (
+                    <p className="text-center text-text-secondary">No existing rankings found. Create your first one!</p>
                   )}
-                </div>
-                <button
-                  onClick={() => setShowNewRankingForm(true)}
-                  className="btn-primary w-full flex items-center justify-center gap-2"
-                >
-                  <Plus className="w-5 h-5" />
-                  Create New Ranking
-                </button>
-              </>
-            ) : (
-              <form onSubmit={handleCreateNewRanking}>
-                <input
-                  type="text"
-                  placeholder="Ranking name"
-                  value={newRankingName}
-                  onChange={(e) => setNewRankingName(e.target.value)}
-                  className="input-field mb-4"
-                  autoFocus
-                />
-                <div className="flex gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setShowNewRankingForm(false)}
-                    className="btn-secondary flex-1"
-                    disabled={isLoading}
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    className="btn-primary flex-1"
-                    disabled={!newRankingName.trim() || isLoading}
-                  >
-                    Create
-                  </button>
-                </div>
-              </form>
-            )}
+                </>
+              )}
+            </div>
           </div>
         </div>
       )}

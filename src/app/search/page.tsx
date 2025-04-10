@@ -51,24 +51,24 @@ export default function SearchPage() {
   };
 
   return (
-    <div className="p-6">
+    <div className="p-4 md:p-6">
       {/* Search Bar */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-text-primary mb-4">Search Albums</h1>
-        <div className="relative max-w-2xl">
+      <div className="mb-6 md:mb-8">
+        <h1 className="text-2xl md:text-3xl font-bold text-text-primary mb-4">Search Albums</h1>
+        <div className="relative w-full max-w-2xl">
           <SearchIcon className="absolute left-4 top-1/2 transform -translate-y-1/2 text-text-secondary w-5 h-5" />
           <input
             type="text"
             placeholder="Search for albums or artists..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="input-field pl-12"
+            className="input-field pl-12 w-full"
           />
         </div>
       </div>
 
       {/* Results */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4">
         {isLoading ? (
           <div className="col-span-full text-center py-12">
             <div className="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-accent"></div>
@@ -76,22 +76,24 @@ export default function SearchPage() {
         ) : albums.length > 0 ? (
           albums.map((album) => (
             <div key={album.id} className="album-card group">
-              <div className="relative aspect-square mb-4">
+              <div className="relative aspect-square mb-3 md:mb-4">
                 <img
-                  src={album.images[0]?.url}
+                  src={album.images[0]?.url || '/placeholder-album.png'}
                   alt={`${album.name} cover`}
                   className="w-full h-full object-cover rounded-md"
+                  loading="lazy"
                 />
                 <button 
-                  className="btn-primary absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
+                  className="btn-primary absolute bottom-2 right-2 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity p-2 md:p-2"
                   onClick={() => setSelectedAlbum(album)}
+                  aria-label="Add to ranking"
                 >
-                  <Plus className="w-5 h-5" />
+                  <Plus className="w-4 h-4 md:w-5 md:h-5" />
                 </button>
               </div>
-              <h3 className="font-semibold text-text-primary truncate">{album.name}</h3>
-              <p className="text-text-secondary truncate">{album.artists[0]?.name}</p>
-              <p className="text-text-secondary text-sm mt-1">{new Date(album.release_date).getFullYear()}</p>
+              <h3 className="font-semibold text-sm md:text-base text-text-primary truncate">{album.name}</h3>
+              <p className="text-xs md:text-sm text-text-secondary truncate">{album.artists[0]?.name}</p>
+              <p className="text-xs text-text-secondary mt-1">{new Date(album.release_date).getFullYear()}</p>
             </div>
           ))
         ) : searchQuery ? (
